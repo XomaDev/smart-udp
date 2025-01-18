@@ -1,11 +1,12 @@
 package com.baxolino.smartudp
 
+import java.net.DatagramPacket
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
 
-object SmartUDP {
+class SmartUDP: AutoCloseable {
 
   private val executor = Executors.newSingleThreadExecutor()
 
@@ -18,8 +19,12 @@ object SmartUDP {
     return this
   }
 
-  fun message(address: InetAddress, port: Int, message: ByteArray, uid: String): SmartUDP {
-    session.sendWithUid(address, port, uid, message)
+  fun message(address: InetAddress, port: Int, message: ByteArray, uid: String? = null): SmartUDP {
+    if (uid != null) {
+      session.sendWithUid(address, port, uid, message)
+    } else {
+      session.send(DatagramPacket(message, 0, message.size, address, port))
+    }
     return this
   }
 
@@ -41,4 +46,10 @@ object SmartUDP {
   fun removeResponseHandler(uid: String) {
     session.packetCallback.remove(uid)
   }
+
+  override fun close() {
+    executor.shutdownNow()
+    session.close()
+  }
+
 }
