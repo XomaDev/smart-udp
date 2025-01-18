@@ -18,7 +18,7 @@ class UDPSession(
   }
 
   private val buffer = ByteArray(SO_RCVBUF)
-  val packetCallback = Collections.synchronizedMap(WeakHashMap<String, (ByteArray) -> ByteArray?>())
+  val packetCallback = Collections.synchronizedMap(WeakHashMap<String, (InetAddress, ByteArray) -> ByteArray?>())
 
   init {
     trafficClass = 0x04 // reliability flag
@@ -37,7 +37,10 @@ class UDPSession(
       }
       val uidOffset = buffer[0] + 1
       val uid = String(buffer.copyOfRange(1, uidOffset))
-      val reply = packetCallback[uid]?.invoke(buffer.copyOfRange(uidOffset, packet.length))
+      val reply = packetCallback[uid]?.invoke(
+        packet.address,
+        buffer.copyOfRange(uidOffset, packet.length)
+      )
       reply?.let { sendWithUid(packet.address, packet.port, uid, reply) }
     }
   }

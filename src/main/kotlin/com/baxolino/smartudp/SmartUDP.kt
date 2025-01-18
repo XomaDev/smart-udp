@@ -30,20 +30,20 @@ class SmartUDP: AutoCloseable {
 
   fun expectResponse(uid: String, timeout: Long): ByteArray? {
     val result = AtomicReference<ByteArray?>(null)
-    handleResponse(uid) {
-      result.set(it)
+    route(uid) { address, message ->
+      result.set(message)
       null
     }
     Thread.sleep(timeout)
-    removeResponseHandler(uid)
+    removeRoute(uid)
     return result.get()
   }
 
-  fun handleResponse(uid: String, callback: (ByteArray) -> ByteArray?) {
+  fun route(uid: String, callback: (InetAddress, ByteArray) -> ByteArray?) {
     session.packetCallback[uid] = callback
   }
 
-  fun removeResponseHandler(uid: String) {
+  fun removeRoute(uid: String) {
     session.packetCallback.remove(uid)
   }
 
