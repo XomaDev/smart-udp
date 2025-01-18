@@ -37,10 +37,15 @@ class UDPSession(
       }
       val uidOffset = buffer[0] + 1
       val uid = String(buffer.copyOfRange(1, uidOffset))
-      val reply = packetCallback[uid]?.invoke(
-        packet.address,
-        buffer.copyOfRange(uidOffset, packet.length)
-      )
+      val reply = try {
+        packetCallback[uid]?.invoke(
+          packet.address,
+          buffer.copyOfRange(uidOffset, packet.length)
+        )
+      } catch (t: Throwable) {
+        t.printStackTrace()
+        null
+      }
       reply?.let { sendWithUid(packet.address, packet.port, uid, reply) }
     }
   }
