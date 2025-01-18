@@ -23,6 +23,17 @@ object SmartUDP {
     return this
   }
 
+  fun expectResponse(uid: String, timeout: Long): ByteArray? {
+    val result = AtomicReference<ByteArray?>(null)
+    handleResponse(uid) {
+      result.set(it)
+      null
+    }
+    Thread.sleep(timeout)
+    removeResponseHandler(uid)
+    return result.get()
+  }
+
   fun handleResponse(uid: String, callback: (ByteArray) -> ByteArray?) {
     session.packetCallback[uid] = callback
   }
