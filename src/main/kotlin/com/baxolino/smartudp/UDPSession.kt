@@ -21,7 +21,7 @@ class UDPSession(
   val packetCallback = Collections.synchronizedMap(WeakHashMap<String, (InetAddress, ByteArray) -> ByteArray?>())
 
   init {
-    trafficClass = 0x04 // reliability flag
+    trafficClass = 0x04 or 0x08 // reliability + speed
     receiveBufferSize = SO_RCVBUF
     soTimeout = 2048 //2sec
   }
