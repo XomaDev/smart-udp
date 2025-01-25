@@ -14,7 +14,7 @@ class SmartUDP: AutoCloseable {
   private val session get() = _session.get()
 
   fun create(port: Int): SmartUDP {
-    executor.submit { _session.set(UDPSession(InetSocketAddress(port))) }.get()
+    executor.submit { _session.set(UDPSession(InetSocketAddress(InetAddress.getByName("0.0.0.0"), port))) }.get()
     executor.submit { session.beginReceiving() }
     return this
   }
