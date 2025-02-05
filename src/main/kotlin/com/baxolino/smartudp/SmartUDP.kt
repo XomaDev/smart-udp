@@ -19,6 +19,11 @@ class SmartUDP: AutoCloseable {
     return this
   }
 
+  fun attach(session: UDPSession) {
+    _session.set(session)
+    executor.submit { session.beginReceiving() }
+  }
+
   fun message(address: InetAddress, port: Int, message: ByteArray, uid: String? = null): SmartUDP {
     if (uid != null) {
       session.sendWithUid(address, port, uid, message)
