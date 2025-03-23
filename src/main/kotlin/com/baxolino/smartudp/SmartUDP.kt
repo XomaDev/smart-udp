@@ -6,15 +6,15 @@ import java.net.InetSocketAddress
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
 
-class SmartUDP: AutoCloseable {
+class SmartUDP : AutoCloseable {
 
   private val executor = Executors.newSingleThreadExecutor()
 
   private val _session = AtomicReference<UDPSession>()
   private val session get() = _session.get()
 
-  fun create(port: Int): SmartUDP {
-    executor.submit { _session.set(UDPSession(InetSocketAddress(InetAddress.getByName("::"), port))) }.get()
+  fun create(address: String = "::", port: Int): SmartUDP {
+    executor.submit { _session.set(UDPSession(InetSocketAddress(InetAddress.getByName(address), port))) }.get()
     executor.submit { session.beginReceiving() }
     return this
   }
